@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"  
+    xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"   
+    xsi:schemaLocation="  
+        http://www.springframework.org/schema/aop   
+        http://www.springframework.org/schema/aop/spring-aop-3.0.xsd   
+        http://www.springframework.org/schema/beans   
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd   
+        http://www.springframework.org/schema/tx   
+        http://www.springframework.org/schema/tx/spring-tx-3.0.xsd  
+        http://www.springframework.org/schema/context   
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+        
+    <!--db_Car-->
+    <!-- Activates annotation-based bean configuration -->
+    <context:annotation-config />
+
+    <context:property-placeholder
+            location="classpath*:config-local.properties" ignore-unresolvable="true" file-encoding="utf-8" />
+
+    <!-- Scans for application @Components to deploy -->
+    <context:component-scan base-package="com.txc.account.service"/>
+    <context:component-scan base-package="com.txc.account.mybatis.mapper" />
+
+
+    <aop:aspectj-autoproxy />
+
+    <!-- 数据源配置 dbcp -->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+          destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driverClassName}"/>
+        <property name="url"
+                  value="jdbc:mysql://${jdbc.address}?useUnicode=true&amp;characterEncoding=utf-8&amp;zeroDateTimeBehavior=convertToNull"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+
+        <!-- Connection Pooling Info -->
+        <property name="initialSize" value="${cpool.initialSize}" />
+        <property name="maxActive" value="${cpool.maxActive}" />
+        <property name="maxIdle" value="${cpool.maxIdle}" />
+        <property name="maxWait" value="${cpool.maxWait}" />
+        <property name="poolPreparedStatements" value="${cpool.poolPreparedStatements}" />
+        <property name="defaultAutoCommit" value="${cpool.defaultAutoCommit}" />
+
+        <!-- 运行判断连接超时任务的时间间隔，单位为毫秒，默认为-1，即不执行任务。 -->
+        <property name="timeBetweenEvictionRunsMillis" value="${cpool.timeBetweenEvictionRunsMillis}"/>
+        <!-- 连接的超时时间，默认为半小时。 -->
+        <property name="minEvictableIdleTimeMillis" value="${cpool.minEvictableIdleTimeMillis}"/>
+    </bean>
+
+
+    <!-- Mybatis SqlSessionFactory -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:configuration.xml" />
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactory" />
+    </bean>
+
+    <!-- 事务控制 -->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <bean id="transactionTemplate"
+          class="org.springframework.transaction.support.TransactionTemplate">
+        <property name="isolationLevelName" value="ISOLATION_DEFAULT"></property>
+        <property name="timeout" value="30"/>
+        <property name="transactionManager" ref="transactionManager"/>
+    </bean>
+
+    <!-- transaction -->
+    <tx:annotation-driven proxy-target-class="true"
+                          transaction-manager="transactionManager" />
+
+    <!-- Mapper接口所在包名，Spring会自动查找其下的Mapper -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.txc.account.mybatis.mapper" />
+        <!--property name="sqlSessionFactory" ref="sqlSessionFactory"/-->
+        <property name="sqlSessionTemplateBeanName" value="sqlSession"/>
+    </bean>
+	<aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+
+  
+</beans>  

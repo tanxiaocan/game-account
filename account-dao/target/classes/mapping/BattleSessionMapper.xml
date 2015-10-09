@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.txc.account.mybatis.mapper.BattleSessionMapper">
+	<resultMap id="BaseResultMap" type="com.txc.account.domain.BattleSession">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="users" property="users" jdbcType="VARCHAR" />
+		<result column="ending" property="ending" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, name, users, ending, create_time, update_time
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from t_battle_session
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	<select id="selectList" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from t_battle_session
+		order by update_time desc limit 0,10
+	</select>
+	<select id="selectCurrentBean" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from t_battle_session
+		order by create_time
+		desc limit 0,1;
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from t_battle_session
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert" parameterType="com.txc.account.domain.BattleSession">
+		insert into t_battle_session (id, name, users,
+		ending, create_time, update_time
+		)
+		values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
+		#{users,jdbcType=VARCHAR},
+		#{ending,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="com.txc.account.domain.BattleSession" useGeneratedKeys="true" keyProperty="id">
+		insert into t_battle_session
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="name != null">
+				name,
+			</if>
+			<if test="users != null">
+				users,
+			</if>
+			<if test="ending != null">
+				ending,
+			</if>
+			create_time,
+			update_time,
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="users != null">
+				#{users,jdbcType=VARCHAR},
+			</if>
+			<if test="ending != null">
+				#{ending,jdbcType=VARCHAR},
+			</if>
+			now(),
+			now(),
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.txc.account.domain.BattleSession">
+		update t_battle_session
+		<set>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="users != null">
+				users = #{users,jdbcType=VARCHAR},
+			</if>
+			<if test="ending != null">
+				ending = #{ending,jdbcType=VARCHAR},
+			</if>
+				update_time = now(),
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.txc.account.domain.BattleSession">
+		update t_battle_session
+		set name = #{name,jdbcType=VARCHAR},
+		users = #{users,jdbcType=VARCHAR},
+		ending = #{ending,jdbcType=VARCHAR},
+		create_time = #{createTime,jdbcType=TIMESTAMP},
+		update_time = #{updateTime,jdbcType=TIMESTAMP}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+</mapper>
